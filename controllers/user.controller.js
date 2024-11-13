@@ -145,3 +145,25 @@ cloudResponse=await cloudinary.UploadStream.upload(fileUri)
 
     }
 }
+
+
+const getSuggestedUser=async(req,res)=>{
+    try {
+       const suggestedUsers=await User.find({_id:{$ne:req.id}}).select("-password")
+       if(!suggestedUsers){
+        return res.status(400).json({
+            message:"Currently do not have any Users",
+            success:false
+        })
+       }
+
+       return res.status(200).json({
+        success:true,
+        user:suggestedUsers
+    })
+
+    } catch (error) {
+        console.log("Problem in suggested user");
+        console.log(error);
+    }
+}
