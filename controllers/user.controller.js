@@ -84,3 +84,14 @@ return res.cookie("token",token,{httpOnly:true,sameSite:'strict',maxAge:1*24*60*
 }
 
 
+
+const logout=async(_,res)=>{
+try {
+    return res.cookie("token","",{maxAge:0}).json({
+        message:"Logged Out Successfully",
+        success:true
+    })
+} catch (error) {
+    
+}
+}
