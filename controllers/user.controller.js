@@ -95,3 +95,18 @@ try {
     
 }
 }
+
+
+const getProfile=async(req,res)=>{
+    try {
+        const userId=req.params.id
+        let user=await User.findById(userId)
+        return res.status(400).json({
+            user,
+            success:true
+        })
+    } catch (error) {
+        console.log("Error in getProfile");
+        console.log(error);
+    }
+}
