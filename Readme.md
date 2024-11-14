@@ -21,3 +21,4 @@
 # addComment
 # getCommentOfPost
 # deletePost
+# bookmarkPost 

@@ -3,6 +3,7 @@ const Sharp=require("sharp")
 const cloudinary=require("../utils/cloudinary")
 const Post = require('../model/post.model')
 const User = require('../model/user.model')
+const { post } = require('../routes/user.route')
 const addNewPost=async(req,res)=>{
     try {
         const {caption}=req.body
@@ -240,5 +241,36 @@ const deletePost=async(req,res)=>{
     } catch (error) {
          console.log("erro in deleting post");
          console.log(error);
+    }
+}
+
+
+const bookmarkPost=async(req,res)=>{
+    try {
+        
+        const postId=req.params.id
+        const authorId=req.id
+        const post = await Post.findById(postId)
+        if(!post) return res.status(404).json({message:"Page not found",success:false})
+
+            const user= await User.findById(authorId)
+            if(user.bookmarks.includes(postId)) {
+                // already bookmark then remove from bookmark
+await User.updateOne({$pull:{bookmarks:post._id}})
+await user.save()
+return res.status(200).json({type:'unsave',message:"Post removed from bookmark successfull",
+    success:true
+})
+            }else{
+                // bookmark karna padega 
+                await User.updateOne({$addToSet:{bookmarks:post._id}})
+await user.save()
+return res.status(200).json({type:'unsave',message:"Post bookmarked successfull",
+    success:true
+})
+            }
+    } catch (error) {
+        console.log("error in bookmark post");
+        console.log(error);
     }
 }
