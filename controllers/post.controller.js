@@ -151,3 +151,39 @@ console.log("Error in Dislike post");
 console.log(e);
     }
 }
+
+
+
+const addComment=async(req,res)=>{
+    try{
+const postId=req.params.id
+const commmentKrneWalaUserKiId=req.id
+
+const {text}=req.body
+const post =await Post.findById(postId)
+if(!text) return res.status(400)
+.json({
+    message:"text is required",
+    success:false
+})
+
+const comment=await Comment.create({
+    text,
+    author:commmentKrneWalaUserKiId,
+    post:postId
+}).populate({
+    path:'author',
+    select:'username , profilePicture'
+})
+post.comments.push(comment._id)
+await post.save()
+return res.status(201).json({
+    message:"Comment Added",
+    comment,
+    success:true
+})
+    }catch(e){
+console.log("error in add comment");
+console.log(e);
+    }
+}
