@@ -22,3 +22,11 @@
 # getCommentOfPost
 # deletePost
 # bookmarkPost 
+
+
+# MESSAGE CONTROLLER
+ - Get Message
+ - Send Message
+
+# post and message route
+

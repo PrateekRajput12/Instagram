@@ -274,3 +274,15 @@ return res.status(200).json({type:'unsave',message:"Post bookmarked successfull"
         console.log(error);
     }
 }
+
+module.exports={
+    bookmarkPost,
+    deletePost,
+    getCommentOfPost,
+    addComment,
+    disLikePost,
+    likePost,
+    getPostOfUser,
+    getAllPost,
+    addNewPost
+}

@@ -4,6 +4,8 @@ const cookieParserr=require("cookie-parser")
 require('dotenv').config()
 const app=express()
 const userRoute=require("./routes/user.route")
+const postRoute=require('./routes/post.route')
+const messageRoute=require("./routes/message.route")
 const connectDB=require('./utils/db')
 app.get("/",(_,res)=>{
     return res.status(200).json({
@@ -24,6 +26,8 @@ const corsOptions={
 
 app.use(cors(corsOptions))
 app.use("/api/v1/user",userRoute)
+app.use("/api/v1/post",postRoute)
+app.use("/api/v1/message",messageRoute)
 
 
 

@@ -3,6 +3,7 @@ const bcrypt=require('bcryptjs')
 const jwt =require('jsonwebtoken')
 const cloudinary=require('../utils/cloudinary')
 const   getDataUri = require("../utils/datauri")
+const Post = require("../model/post.model")
 const register=async(req,res)=>{
     try {
         const {username,email,password}=req.body
@@ -63,6 +64,18 @@ if(!isPasswordMatch){
         success:"False"
     })
 }
+const SECRET_KEY=process.env.SECRET_KEY
+
+const token=await jwt.sign({userId:user._id},SECRET_KEY,{expiresIn:'1d'})
+
+// populate each post id in the post array
+const populatedPost=await Promise.all(user.posts.map(async(postId)=>{
+const post =await Post.findById(postId)
+if(post.author.equals(user._id)){
+    return post
+}
+return null
+}))
 user={
     _id:user._id,
     username:user.username,
@@ -71,10 +84,8 @@ user={
     bio:user.bio,
     followers:user.followers,
     following:user.following,
-    posts:user.posts
+    posts:populatedPost
 }
-const SECRET_KEY=process.env.SECRET_KEY
-const token=await jwt.sign({userId:user._id},SECRET_KEY,{expiresIn:'1d'})
 return res.cookie("token",token,{httpOnly:true,sameSite:'strict',maxAge:1*24*60*60*1000}).json({
     message:`Welcome back ${user.username}`,
     success:true,
