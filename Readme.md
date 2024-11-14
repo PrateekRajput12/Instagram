@@ -9,3 +9,5 @@
 
 # getAllPost
 - Done here 
+
+# getPostOfUser

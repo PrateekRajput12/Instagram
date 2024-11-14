@@ -54,7 +54,7 @@ return res.status(201).json({
 
 const getAllPost =async(req,res)=>{
     try{
-const post=await Post.find().sort({createdAt:-1}).populate({path:'author',select:'username,profilePicture'})
+const posts=await Post.find().sort({createdAt:-1}).populate({path:'author',select:'username,profilePicture'})
 .populate({
     path:'comments',
     sort:{createdAt:-1},
@@ -72,3 +72,28 @@ return res.status(200).json({
         console.log(e);
     }
 }
+
+
+
+const getPostOfUser=async(req,res)=>{
+    try{
+    const authorId=req.id
+    const posts=await Post.find({author:authorId}).sort({createdAt:-1}).populate({path:"author",select:'username,profilePicture'})
+    .populate({path:'comments',
+        sort:{createdAt:-1},
+        populate:{
+            path:'author',
+            select:'username,profilePicture'
+        }
+    })
+    return res.status(200).json({
+        posts,
+        success:true
+    })
+    }catch(e){
+        console.log("error in getPost user");
+        console.log(e);
+    }
+}
+
+
