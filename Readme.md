@@ -11,3 +11,10 @@
 - Done here 
 
 # getPostOfUser
+
+
+# likePost 
+- like post logic done here 
+- but the like notification logic we will see when we write frontend
+
+# Dislike Post

@@ -97,3 +97,57 @@ const getPostOfUser=async(req,res)=>{
 }
 
 
+const likePost=async(req,res)=>{
+    try{
+        const likeKrneWaleUserKiId=req.id
+        const postId=req.params.id
+        const post=await Post.findById(postId)
+if(!post){
+    return res.status(404).json({
+        message:"Post not found",
+        success:false
+    })
+}
+// like logic statement
+await post.updateOne({$addToSet:{likes:likeKrneWaleUserKiId}})
+await post.save()
+// implement socket iio for real time notification
+
+return res.status(200).json({
+    message:"Post liked ",
+    success:true
+})
+    }
+    catch(e){
+console.log("Error in like post");
+console.log(e);
+    }
+}
+
+
+const disLikePost=async(req,res)=>{
+    try{
+        const disLikeKrneWaleUserKiId=req.id
+        const postId=req.params.id
+        const post=await Post.findById(postId)
+if(!post){
+    return res.status(404).json({
+        message:"Post not found",
+        success:false
+    })
+}
+// like logic statement
+await post.updateOne({$pull:{likes:disLikeKrneWaleUserKiId}})
+await post.save()
+// implement socket iio for real time notification
+
+return res.status(200).json({
+    message:"Post Disliked ",
+    success:true
+})
+    }
+    catch(e){
+console.log("Error in Dislike post");
+console.log(e);
+    }
+}
