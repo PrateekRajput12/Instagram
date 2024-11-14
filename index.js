@@ -3,7 +3,7 @@ const cors=require("cors")
 const cookieParserr=require("cookie-parser")
 require('dotenv').config()
 const app=express()
-
+const userRoute=require("./routes/user.route")
 const connectDB=require('./utils/db')
 app.get("/",(_,res)=>{
     return res.status(200).json({
@@ -11,7 +11,6 @@ app.get("/",(_,res)=>{
         success:true
     })
 })
-
 app.use(express.json())
 app.use(cookieParserr())
 app.use((express.urlencoded({extended:true})))
@@ -24,9 +23,13 @@ const corsOptions={
 
 
 app.use(cors(corsOptions))
+app.use("/api/v1/user",userRoute)
+
+
 
 const PORT=process.env.PORT || 8000
-// console.log("here");
+
+
 app.listen(PORT,()=>{
 connectDB()
     console.log(`Listening on port : ${PORT}`);

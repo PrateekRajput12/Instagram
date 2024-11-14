@@ -1,8 +1,8 @@
 const jwt=require("jsonwebtoken")
 
-const isAuthenticated=async(req,res)=>{
+const isAuthenticated=async(req,res,next)=>{
     try{
-const token=req.cookie.token
+const token=req.cookies.token
 if(!token){
     return res.status(401).json({
         message:"User not Authenticated",
@@ -17,10 +17,14 @@ if(!decode){
     })
 }
    
-res.id=decode.userId
+req.id=decode.userId
 next()
 }catch(e){
 console.log("Error in isAuthenticated");
 console.log(e);
     }
 }
+
+
+
+module.exports=isAuthenticated

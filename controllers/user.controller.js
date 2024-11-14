@@ -1,8 +1,8 @@
 const User = require("../model/user.model")
 const bcrypt=require('bcryptjs')
 const jwt =require('jsonwebtoken')
-const cloudinary=require('cloudinary')
-const { default: getDataUri } = require("../utils/datauri")
+const cloudinary=require('../utils/cloudinary')
+const   getDataUri = require("../utils/datauri")
 const register=async(req,res)=>{
     try {
         const {username,email,password}=req.body
@@ -14,6 +14,7 @@ const register=async(req,res)=>{
         }
 
         const user=await User.findOne({email})
+       
         if(user){
             return res.status(400).json({
                 message:'try  different email',
@@ -21,11 +22,11 @@ const register=async(req,res)=>{
             })
         }
 
-        const hashedPassword=await bcrypt.hash(password,process.env.SAL)
+        const hashedPassword=await bcrypt.hash(password,10)
         await User.create({
             username,
             email,
-            password
+            password:hashedPassword
         })
 return res.status(201).json({
     message:"Account Created Successfully"
@@ -47,7 +48,7 @@ const login=async (req,res)=>{
                 success:false
             })
         }
-const user=await User.findOne({email})
+let user=await User.findOne({email})
 if(!user){
     return res.status(401).json({
         message:"Incorrect Email or password ",
@@ -56,7 +57,7 @@ if(!user){
 }
 
 const isPasswordMatch= await bcrypt.compare(password,user.password)
-if(!password){
+if(!isPasswordMatch){
     return res.status(401).json({
         message:"Incorrect Email or password ",
         success:"False"
@@ -102,7 +103,7 @@ try {
 const getProfile=async(req,res)=>{
     try {
         const userId=req.params.id
-        let user=await User.findById(userId)
+        let user=await User.findById(userId).select('-password')
         return res.status(400).json({
             user,
             success:true
@@ -115,16 +116,17 @@ const getProfile=async(req,res)=>{
 
 const editProfile=async(req,res)=>{
     try{
-        const userId=req.id
+        const userId = req.id;
+        // console.log(userId);
         const {bio,gender}=req.body
         const profilePicture=req.file
 
         let cloudResponse ;
         if(profilePicture){
 const fileUri=getDataUri(profilePicture)
-cloudResponse=await cloudinary.UploadStream.upload(fileUri)
+cloudResponse=await cloudinary.uploader.upload(fileUri)
         }
-        const user=await User.findById(userId)
+        const user=await User.findById(userId).select('-password')
 
         if(!user){
             return res.status(404).json({
@@ -142,7 +144,8 @@ cloudResponse=await cloudinary.UploadStream.upload(fileUri)
         })
     }
     catch(e){
-
+console.log('Error in edit profile');
+console.log(e);
     }
 }
 
@@ -166,4 +169,70 @@ const getSuggestedUser=async(req,res)=>{
         console.log("Problem in suggested user");
         console.log(error);
     }
+}
+
+const followOrUnfollow=async(req,res)=>{
+    try {
+        const followKarneWala=req.id  
+        console.log(followKarneWala,"follow wala");// mine
+        const jiskoFOllowKarunga=req.params.id  // whom i will follow
+        if(followKarneWala===jiskoFOllowKarunga){
+            return res.status(400).json({
+                message:"You cannot follow or unfollow Yourself",
+                success:true
+
+            })
+        }
+        const user=await User.findById(followKarneWala)
+        const targetUser=await User.findById(jiskoFOllowKarunga)
+        if(!user || !targetUser){
+            return res.status(400).json({
+                message:"User not found",
+                success:false
+
+            })
+        }
+
+        // now check whether need to follow or unfollow
+
+        const isFollowing=user.following.includes(jiskoFOllowKarunga)
+        if(isFollowing){
+            // unfollow logic
+            await Promise.all([
+                User.updateOne({_id:followKarneWala},{$pull:{following:jiskoFOllowKarunga}}),
+                User.updateOne({_id:jiskoFOllowKarunga},{$pull:{followers:followKarneWala}})
+
+            ])
+            return res.status(200).json({message:"Unfollow successfully",success:true
+
+            })
+        }else{
+            // follow logic
+            await Promise.all([
+                User.updateOne({_id:followKarneWala},{$push:{following:jiskoFOllowKarunga}}),
+                User.updateOne({_id:jiskoFOllowKarunga},{$push:{followers:followKarneWala}})
+
+            ])
+            return res.status(200).json({message:"follow successfully",success:true})
+
+        }
+
+    } catch (error) {
+        console.log("error in follow or Unfollow");
+        console.log(error);
+    }
+}
+
+
+
+
+
+module.exports={
+    register
+,login
+    ,logout
+,    getProfile
+    ,editProfile
+    ,getSuggestedUser
+    ,followOrUnfollow
 }
