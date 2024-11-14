@@ -187,3 +187,58 @@ console.log("error in add comment");
 console.log(e);
     }
 }
+
+
+
+
+const getCommentOfPost=async(req,res)=>{
+    try {
+        const postid=req.params.id
+        const comments=await Comment.find({post:postid}.populate("author",'username,profilePicture'))
+
+        if(!comments) return res.status(404).json({message:"No comment found for this post",success:false})
+
+            return res.status(200).json({success:true,
+                comments
+            })
+    } catch (error) {
+        console.log("error in getting comment of all post");
+        console.log(error);
+    }
+}
+
+const deletePost=async(req,res)=>{
+    try {
+        const postId=req.params.id
+        const authorId=req.id
+        const post=await Post.findById(postId)
+
+        if(!post) return res.status(404).json({message:"Post Not found ",success:false})
+            // check if logged in user is owner of post
+
+        if(post.author.toString()!== authorId){
+            return res.status(403).json({message:"Unauthorized "})
+        }
+
+        // delete post
+
+        await Post.findByIdAndDelete(postId)
+
+
+        //  ermove the post id from the user post 
+        let user=await User.findById(authorId)
+        user.posts=user.posts.filter(id=>id.toString()!==postId)
+        await user.save()
+
+        // delete associated comments
+        await Comment.deleteMany({post:postId})
+        
+        return res.status(200).json({
+            message:"Post deleted",
+            success:true
+        })
+    } catch (error) {
+         console.log("erro in deleting post");
+         console.log(error);
+    }
+}

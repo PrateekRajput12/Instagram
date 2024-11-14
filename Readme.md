@@ -18,5 +18,6 @@
 - but the like notification logic we will see when we write frontend
 
 # Dislike Post
-
 # addComment
+# getCommentOfPost
+# deletePost
